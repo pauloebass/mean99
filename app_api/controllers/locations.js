@@ -17,9 +17,18 @@ var theEarth = (function() {
     return parseFloat(distance / earthRadius);
   };
 
+  var mToKm = function(distance) {
+    return parseFloat(distance / 1000);
+  };
+  var kmToM = function(distance) {
+      return parseFloat(distance * 1000);
+  };
+
   return {
     getDistanceFromRads: getDistanceFromRads,
-    getRadsFromDistance: getRadsFromDistance
+    getRadsFromDistance: getRadsFromDistance,
+    mToKm: mToKm,
+    kmToM: kmToM
   };
 })();
 
@@ -34,8 +43,7 @@ module.exports.locationsListByDistance = function(req, res) {
   };
   var geoOptions = {
     spherical: true,
-    //maxDistance: theEarth.getRadsFromDistance(maxDistance),
-    maxDistance: 99999999,
+    maxDistance: theEarth.kmToM(maxDistance),
     num: 10
   };
   if ((!lng && lng!==0) || (!lat && lat!==0) || ! maxDistance) {
@@ -63,7 +71,7 @@ var buildLocationList = function(req, res, results, stats) {
   var locations = [];
   results.forEach(function(doc) {
     locations.push({
-      distance: theEarth.getDistanceFromRads(doc.dis),
+      distance: theEarth.mToKm(doc.dis),
       name: doc.obj.name,
       address: doc.obj.address,
       rating: doc.obj.rating,
