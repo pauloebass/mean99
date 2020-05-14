@@ -8,7 +8,7 @@ var sendJSONresponse = function(res, status, content) {
 };
 
 var getDistance = function(point1, point2){
-  let distance = geolib.getPreciseDistance(
+  var distance = geolib.getPreciseDistance(
     { latitude: point1.lat, longitude: point1.lng },
     { latitude: point2.lat, longitude: point2.lng },
     1
