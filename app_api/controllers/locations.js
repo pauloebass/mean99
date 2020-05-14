@@ -1,10 +1,21 @@
 var mongoose = require('mongoose');
 var Loc = mongoose.model('Location');
+const geolib = require('geolib');
 
 var sendJSONresponse = function(res, status, content) {
   res.status(status);
   res.json(content);
 };
+
+var getDistance = function(point1, point2){
+  let distance = geolib.getPreciseDistance(
+    { latitude: point1.lat, longitude: point1.lng },
+    { latitude: point2.lat, longitude: point2.lng },
+    1
+  );
+  console.log('dist :' + distance);
+  return distance;
+}
 
 var theEarth = (function() {
   var earthRadius = 6371; // km, miles is 3959
@@ -36,16 +47,10 @@ var theEarth = (function() {
 module.exports.locationsListByDistance = function(req, res) {
   var lng = parseFloat(req.query.lng);
   var lat = parseFloat(req.query.lat);
+  var point = {lng: lng, lat: lat};
   var maxDistance = parseFloat(req.query.maxDistance);
-  var point = {
-    type: "Point",
-    coordinates: [lng, lat]
-  };
-  var geoOptions = {
-    spherical: true,
-    maxDistance: theEarth.kmToM(maxDistance),
-    num: 10
-  };
+  var locations;
+
   if ((!lng && lng!==0) || (!lat && lat!==0) || ! maxDistance) {
     console.log('locationsListByDistance missing params');
     sendJSONresponse(res, 404, {
@@ -53,7 +58,31 @@ module.exports.locationsListByDistance = function(req, res) {
     });
     return;
   }
-  Loc.geoNear(point, geoOptions, function(err, results, stats) {
+
+  Loc.find({
+    location: {
+     $near: {
+      $maxDistance: maxDistance,
+      $geometry: {
+       type: "Point",
+       coordinates: [lng, lat]
+      }
+     }
+    }
+   }).find((err, results) => {
+        if (err) {
+          console.log('Geo Near error:', err);
+          sendJSONresponse(res, 404, err);
+        } else {          
+          locations = buildLocationList(req, res, results, point);
+          sendJSONresponse(res, 200, locations);
+        }
+        //if (error) console.log(error);
+        //console.log(JSON.stringify(results, 0, 1));
+   });
+  
+  
+  /*Loc.geoNear(point, geoOptions, function(err, results, stats) {
     var locations;
     console.log('Geo Results', results);
     console.log('Geo stats', stats);
@@ -64,19 +93,23 @@ module.exports.locationsListByDistance = function(req, res) {
       locations = buildLocationList(req, res, results, stats);
       sendJSONresponse(res, 200, locations);
     }
-  });
+  });*/
 };
 
-var buildLocationList = function(req, res, results, stats) {
+var buildLocationList = function(req, res, results, point) {
   var locations = [];
+  var locationPoint;
+  //console.log(results);
+  console.log(JSON.stringify(results, 0, 2));
   results.forEach(function(doc) {
+    locationPoint = {lng: doc.location.coordinates[0], lat: doc.location.coordinates[1]};
     locations.push({
-      distance: theEarth.mToKm(doc.dis),
-      name: doc.obj.name,
-      address: doc.obj.address,
-      rating: doc.obj.rating,
-      facilities: doc.obj.facilities,
-      _id: doc.obj._id
+      distance: getDistance(point, locationPoint),
+      name: doc.name,
+      address: doc.address,
+      rating: doc.rating,
+      facilities: doc.facilities,
+      _id: doc._id
     });
   });
   return locations;

@@ -4,8 +4,8 @@ var dbURI = 'mongodb://localhost/loc8r';
 if (process.env.NODE_ENV === 'production') {
     dbURI = process.env.MONGOLAB_URI;
 }
-
-mongoose.connect(dbURI, {useMongoClient : true});
+let connectionOptions = {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true};
+mongoose.connect(dbURI, connectionOptions);
 
 // CONNECTION EVENTS
 mongoose.connection.on('connected', function() {

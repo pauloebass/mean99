@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 
+
 var reviewSchema = new mongoose.Schema({
     author: {type: String, required: true},
     rating: {
@@ -28,6 +29,16 @@ var openingTimeSchema = new mongoose.Schema({
     }
 });
 
+var pointSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        default: "Point"
+    },
+    coordinates: {
+        type: [Number]
+    }
+});
+
 var locationSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -42,12 +53,29 @@ var locationSchema = new mongoose.Schema({
     },
     facilities: [String],
     // Always store coordinates longitude, latitude order.
-    coords: {
-        type: [Number],
-        index: '2dsphere'
+    //coords: {
+    //    type: [Number],
+    //    index: '2dsphere'
+    //},
+    location: {
+        type: { 
+            type: String,
+            "default": "Point"
+        },
+        coordinates: []
     },
     openingTimes: [openingTimeSchema],
     reviews: [reviewSchema]
 });
 
+/*var locationSchema = new mongoose.Schema({
+     username: String,
+     text: String,  
+     location: {
+      type: { type: String },
+      coordinates: []
+     }
+});*/
+
+locationSchema.index({ location: "2dsphere" });
 mongoose.model('Location', locationSchema);
