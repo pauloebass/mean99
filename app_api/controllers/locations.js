@@ -121,6 +121,7 @@ module.exports.locationsReadOne = function(req, res) {
   if (req.params && req.params.locationid) {
     Loc
       .findById(req.params.locationid, function(err, location) {
+        console.log('location :' + location);
         if (!location) {
           sendJSONresponse(res, 404, {
             "message": "locationid not found"
