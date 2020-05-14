@@ -120,8 +120,7 @@ module.exports.locationsReadOne = function(req, res) {
   console.log('Finding location details', req.params);
   if (req.params && req.params.locationid) {
     Loc
-      .findById(req.params.locationid)
-      .exec(function(err, location) {
+      .findById(req.params.locationid, function(err, location) {
         if (!location) {
           sendJSONresponse(res, 404, {
             "message": "locationid not found"
