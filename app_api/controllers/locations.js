@@ -120,7 +120,7 @@ module.exports.locationsReadOne = function(req, res) {
   console.log('Finding location details', req.params);
   if (req.params && req.params.locationid) {
     Loc
-      .find({_id : mongoose.Types.ObjectId(req.params.locationid)}, function(err, location) {
+      .find({_id : req.params.locationid}, function(err, location) {
         console.log('location :' + location);
         console.log('err :' + err);
         if (!location) {
