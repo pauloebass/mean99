@@ -15,7 +15,7 @@
 
     loc8rData.locationById(vm.locationid)
       .success(function(data) {
-        vm.data = { location: data };
+        vm.data = { location: data[0] };
         vm.pageHeader = {
           title: vm.data.location.name
         };

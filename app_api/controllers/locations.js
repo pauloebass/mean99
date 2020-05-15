@@ -13,7 +13,7 @@ var getDistance = function(point1, point2){
     { latitude: point2.lat, longitude: point2.lng },
     1
   );
-  console.log('dist :' + distance);
+  //console.log('dist :' + distance);
   return distance;
 }
 
@@ -100,7 +100,7 @@ var buildLocationList = function(req, res, results, point) {
   var locations = [];
   var locationPoint;
   //console.log(results);
-  console.log(JSON.stringify(results, 0, 2));
+  //console.log(JSON.stringify(results, 0, 2));
   results.forEach(function(doc) {
     locationPoint = {lng: doc.location.coordinates[0], lat: doc.location.coordinates[1]};
     locations.push({
@@ -120,8 +120,8 @@ module.exports.locationsReadOne = function(req, res) {
   console.log('Finding location details', req.params);
   if (req.params && req.params.locationid) {
     Loc
-      .findById(req.params.locationid, function(err, location) {
-        console.log('location :' + location);
+      .find({_id : mongoose.Types.ObjectId(req.params.locationid)}, function(err, location) {
+        //console.log('location :' + location);
         if (!location) {
           sendJSONresponse(res, 404, {
             "message": "locationid not found"
