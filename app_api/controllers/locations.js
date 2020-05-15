@@ -121,7 +121,8 @@ module.exports.locationsReadOne = function(req, res) {
   if (req.params && req.params.locationid) {
     Loc
       .find({_id : mongoose.Types.ObjectId(req.params.locationid)}, function(err, location) {
-        //console.log('location :' + location);
+        console.log('location :' + location);
+        console.log('err :' + err);
         if (!location) {
           sendJSONresponse(res, 404, {
             "message": "locationid not found"
