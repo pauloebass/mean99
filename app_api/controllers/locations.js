@@ -69,31 +69,16 @@ module.exports.locationsListByDistance = function(req, res) {
       }
      }
     }
-   }).find((err, results) => {
+   }, function(err, results){
+        console.log('results :' + results);
         if (err) {
-          console.log('Geo Near error:', err);
+          console.log('Near error:', err);
           sendJSONresponse(res, 404, err);
-        } else {          
+        } else {
           locations = buildLocationList(req, res, results, point);
           sendJSONresponse(res, 200, locations);
         }
-        //if (error) console.log(error);
-        //console.log(JSON.stringify(results, 0, 1));
    });
-  
-  
-  /*Loc.geoNear(point, geoOptions, function(err, results, stats) {
-    var locations;
-    console.log('Geo Results', results);
-    console.log('Geo stats', stats);
-    if (err) {
-      console.log('geoNear error:', err);
-      sendJSONresponse(res, 404, err);
-    } else {
-      locations = buildLocationList(req, res, results, stats);
-      sendJSONresponse(res, 200, locations);
-    }
-  });*/
 };
 
 var buildLocationList = function(req, res, results, point) {
@@ -120,7 +105,7 @@ module.exports.locationsReadOne = function(req, res) {
   console.log('Finding location details', req.params);
   if (req.params && req.params.locationid) {
     Loc
-      .find({_id : req.params.locationid}, function(err, location) {
+      .find({'_id' : req.params.locationid}, function(err, location) {
         console.log('location :' + location);
         console.log('err :' + err);
         if (!location) {
