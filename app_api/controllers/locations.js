@@ -104,8 +104,9 @@ var buildLocationList = function(req, res, results, point) {
 module.exports.locationsReadOne = function(req, res) {
   console.log('Finding location details', req.params);
   if (req.params && req.params.locationid) {
+    var id = new mongoose.Types.ObjectId(req.params.locationid);
     Loc
-      .find({'_id' : req.params.locationid}, function(err, location) {
+      .find({_id : id}, function(err, location) {
         console.log('location :' + location);
         console.log('err :' + err);
         if (!location) {
