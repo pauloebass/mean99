@@ -21,6 +21,7 @@ module.exports.reviewsCreate = function(req, res) {
             if (err) {
               sendJSONresponse(res, 400, err);
             } else {
+              console.log(location);
               doAddReview(req, res, location, userName);
             }
           }

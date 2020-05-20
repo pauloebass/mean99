@@ -1,25 +1,25 @@
-require('dotenv').load();
+require('dotenv').config(); //necessario para express-jwt
 var express = require('express');
-var path = require('path');
+var path = require('path'); //node 
 var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var uglifyJs = require("uglify-js");
-var fs = require('fs');
-var passport = require('passport');
+var logger = require('morgan');//logger
+var cookieParser = require('cookie-parser');//Parse Cookie header and populate req.cookies
+var bodyParser = require('body-parser');//Parse incoming request bodies in a middleware before your handlers
+var uglifyJs = require("uglify-js");//UglifyJS is a JavaScript parser, minifier, compressor and beautifier toolkit.
+var fs = require('fs');//node
+var passport = require('passport');// Express-compatible authentication middleware for Node.js.
 
 require('./app_api/models/db');
 require('./app_api/config/passport');
 
-var routes = require('./app_server/routes/index');
+//var routes = require('./app_server/routes/index');
 var routesApi = require('./app_api/routes/index');
 
 var app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'app_server', 'views'));
-app.set('view engine', 'jade');
+//app.set('views', path.join(__dirname, 'app_server', 'views'));
+//app.set('view engine', 'jade');
 
 var appClientFiles = [
   'app_client/app.js',
@@ -51,8 +51,9 @@ fs.writeFile('public/angular/loc8r.min.js', uglified.code, function (err){
 });
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger('dev'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
+console.log('__dirname: ' + __dirname);//teste retirar
+app.use(logger('dev'));//Concise output colored by response status for development use
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -64,6 +65,7 @@ app.use('/api', routesApi);
 
 app.use(function(req, res) {
   res.sendFile(path.join(__dirname, 'app_client', 'index.html'));
+  console.log('######index######');
 });
 
 // catch 404 and forward to error handler
@@ -71,17 +73,20 @@ app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
+    console.log('######not found######');
 });
-
 // error handlers
 // Catch unauthorised errors
 app.use(function (err, req, res, next) {
   if (err.name === 'UnauthorizedError') {
     res.status(401);
     res.json({"message" : err.name + ": " + err.message});
+  }else{
+    res.status(500);
+    res.json({"message" : err.name + ": " + err.message});
   }
+  console.log('######UnauthorizedError######');
 });
-
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
@@ -91,9 +96,9 @@ if (app.get('env') === 'development') {
             message: err.message,
             error: err
         });
-    });
+      });
+      console.log('######development######');
 }
-
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
@@ -102,7 +107,7 @@ app.use(function(err, req, res, next) {
         message: err.message,
         error: {}
     });
+    console.log('######error######');
 });
-
 
 module.exports = app;

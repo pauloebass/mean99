@@ -1,5 +1,10 @@
 var mongoose = require( 'mongoose' );
-var crypto = require('crypto');
+//It is possible for Node.js to be built without including support for the crypto module
+try {
+  var crypto = require('crypto');
+} catch (error) {
+  console.log('crypto support is disabled!');
+}
 var jwt = require('jsonwebtoken');
 
 var userSchema = new mongoose.Schema({
@@ -18,11 +23,11 @@ var userSchema = new mongoose.Schema({
 
 userSchema.methods.setPassword = function(password){
   this.salt = crypto.randomBytes(16).toString('hex');
-  this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
+  this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha1').toString('hex');
 };
 
 userSchema.methods.validPassword = function(password) {
-  var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
+  var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha1').toString('hex');
   return this.hash === hash;
 };
 
