@@ -23,6 +23,7 @@ var app = express();
 
 var appClientFiles = [
   'app_client/app.js',
+  'app_client/addLocation/currentLocation/addLocation.controller.js',
   'app_client/home/home.controller.js',
   'app_client/about/about.controller.js',
   'app_client/auth/login/login.controller.js',

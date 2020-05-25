@@ -29,6 +29,11 @@
         controller: 'loginCtrl',
         controllerAs: 'vm'
       })
+      .when('/addLocation', {
+        templateUrl: '/addLocation/currentLocation/addLocation.view.html',
+        controller: 'addLocationCtrl',
+        controllerAs: 'vm'
+      })
       .otherwise({redirectTo: '/'});
 
     // use the HTML5 History API
