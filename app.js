@@ -1,4 +1,4 @@
-require('dotenv').config(); //necessario para express-jwt
+require('dotenv').config(); //necessario para express-jwt e variareis de ambiente process.env.xxx
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -52,13 +52,33 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'app_client')));
-
+app.use(express.static(path.join(__dirname, 'app_public','build')));
+//app.use(express.static(path.join(__dirname, 'app_client')));
+/*
+app.use('/api', (req, res, next) => {
+	res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With,Content-Type, Accept, Authorization');
+	next();
+});
+*/
+//app.use(passport.initialize()); verificar a necessidade de inicializacao
 app.use('/api', routesApi);
 
+app.get('*', function(req, res, next) {
+  res.sendFile(path.join(__dirname, 'app_public', 'build', 'index.html'));
+});
+/*
 app.use(function(req, res) {
+  console.log('###build###')
+  res.sendFile(path.join(__dirname, 'app_public', 'build', 'index.html'));
+});
+/*
+/*
+app.use(function(req, res) {
+  console.log('###app_client###')
   res.sendFile(path.join(__dirname, 'app_client', 'index.html'));
 });
+*/
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
