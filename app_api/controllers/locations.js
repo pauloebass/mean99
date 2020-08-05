@@ -2,12 +2,12 @@ var mongoose = require('mongoose');
 var Loc = mongoose.model('Location');
 const geolib = require('geolib');
 
-var sendJSONresponse = function(res, status, content) {
+var sendJSONresponse = function (res, status, content) {
   res.status(status);
   res.json(content);
 };
 
-var getDistance = function(point1, point2){
+var getDistance = function (point1, point2) {
   var distance = geolib.getPreciseDistance(
     { latitude: point1.lat, longitude: point1.lng },
     { latitude: point2.lat, longitude: point2.lng },
@@ -17,22 +17,22 @@ var getDistance = function(point1, point2){
   return distance;
 }
 
-var theEarth = (function() {
+var theEarth = (function () {
   var earthRadius = 6371; // km, miles is 3959
 
-  var getDistanceFromRads = function(rads) {
+  var getDistanceFromRads = function (rads) {
     return parseFloat(rads * earthRadius);
   };
 
-  var getRadsFromDistance = function(distance) {
+  var getRadsFromDistance = function (distance) {
     return parseFloat(distance / earthRadius);
   };
 
-  var mToKm = function(distance) {
+  var mToKm = function (distance) {
     return parseFloat(distance / 1000);
   };
-  var kmToM = function(distance) {
-      return parseFloat(distance * 1000);
+  var kmToM = function (distance) {
+    return parseFloat(distance * 1000);
   };
 
   return {
@@ -44,14 +44,14 @@ var theEarth = (function() {
 })();
 
 /* GET list of locations */
-module.exports.locationsListByDistance = function(req, res) {
+module.exports.locationsListByDistance = function (req, res) {
   var lng = parseFloat(req.query.lng);
   var lat = parseFloat(req.query.lat);
-  var point = {lng: lng, lat: lat};
+  var point = { lng: lng, lat: lat };
   var maxDistance = parseFloat(req.query.maxDistance);
   var locations;
 
-  if ((!lng && lng!==0) || (!lat && lat!==0) || ! maxDistance) {
+  if ((!lng && lng !== 0) || (!lat && lat !== 0) || !maxDistance) {
     console.log('locationsListByDistance missing params');
     sendJSONresponse(res, 404, {
       "message": "lng, lat and maxDistance query parameters are all required"
@@ -61,33 +61,33 @@ module.exports.locationsListByDistance = function(req, res) {
 
   Loc.find({
     location: {
-     $near: {
-      $maxDistance: maxDistance,
-      $geometry: {
-       type: "Point",
-       coordinates: [lng, lat]
-      }
-     }
-    }
-   }, function(err, results){
-        console.log('results :' + results);
-        if (err) {
-          console.log('Near error:', err);
-          sendJSONresponse(res, 404, err);
-        } else {
-          locations = buildLocationList(req, res, results, point);
-          sendJSONresponse(res, 200, locations);
+      $near: {
+        $maxDistance: maxDistance,
+        $geometry: {
+          type: "Point",
+          coordinates: [lng, lat]
         }
-   });
+      }
+    }
+  }, function (err, results) {
+    if (err) {
+      console.log('Near error:', err);
+      sendJSONresponse(res, 404, err);
+    } else {
+      console.log(`Result 0 of ${results.length} : ${results[0]}`);
+      locations = buildLocationList(req, res, results, point);
+      sendJSONresponse(res, 200, locations);
+    }
+  });
 };
 
-var buildLocationList = function(req, res, results, point) {
+var buildLocationList = function (req, res, results, point) {
   var locations = [];
   var locationPoint;
   //console.log(results);
   //console.log(JSON.stringify(results, 0, 2));
-  results.forEach(function(doc) {
-    locationPoint = {lng: doc.location.coordinates[0], lat: doc.location.coordinates[1]};
+  results.forEach(function (doc) {
+    locationPoint = { lng: doc.location.coordinates[0], lat: doc.location.coordinates[1] };
     locations.push({
       distance: getDistance(point, locationPoint),
       name: doc.name,
@@ -101,12 +101,12 @@ var buildLocationList = function(req, res, results, point) {
 };
 
 /* GET a location by the id */
-module.exports.locationsReadOne = function(req, res) {
+module.exports.locationsReadOne = function (req, res) {
   console.log('Finding location details', req.params);
   if (req.params && req.params.locationid) {
     var id = new mongoose.Types.ObjectId(req.params.locationid);
     Loc
-      .find({_id : id}, function(err, location) {
+      .find({ _id: id }, function (err, location) {
         console.log('location :' + location);
         if (!location) {
           sendJSONresponse(res, 404, {
@@ -130,7 +130,7 @@ module.exports.locationsReadOne = function(req, res) {
 
 /* POST a new location */
 /* /api/locations */
-module.exports.locationsCreate = function(req, res) {
+module.exports.locationsCreate = function (req, res) {
   console.log("api: " + JSON.stringify(req.body));
   //return;
   Loc.create({
@@ -147,7 +147,7 @@ module.exports.locationsCreate = function(req, res) {
       closing: req.body.openingTimes.closing,
       closed: false
     }]
-  }, function(err, location) {
+  }, function (err, location) {
     if (err) {
       console.log(err);
       sendJSONresponse(res, 400, err);
@@ -159,7 +159,7 @@ module.exports.locationsCreate = function(req, res) {
 };
 
 /* PUT /api/locations/:locationid */
-module.exports.locationsUpdateOne = function(req, res) {
+module.exports.locationsUpdateOne = function (req, res) {
   if (!req.params.locationid) {
     sendJSONresponse(res, 404, {
       "message": "Not found, locationid is required"
@@ -170,7 +170,7 @@ module.exports.locationsUpdateOne = function(req, res) {
     .findById(req.params.locationid)
     .select('-reviews -rating')
     .exec(
-      function(err, location) {
+      function (err, location) {
         if (!location) {
           sendJSONresponse(res, 404, {
             "message": "locationid not found"
@@ -195,7 +195,7 @@ module.exports.locationsUpdateOne = function(req, res) {
           closing: req.body.closing2,
           closed: req.body.closed2,
         }];
-        location.save(function(err, location) {
+        location.save(function (err, location) {
           if (err) {
             sendJSONresponse(res, 404, err);
           } else {
@@ -203,17 +203,17 @@ module.exports.locationsUpdateOne = function(req, res) {
           }
         });
       }
-  );
+    );
 };
 
 /* DELETE /api/locations/:locationid */
-module.exports.locationsDeleteOne = function(req, res) {
+module.exports.locationsDeleteOne = function (req, res) {
   var locationid = req.params.locationid;
   if (locationid) {
     Loc
       .findByIdAndRemove(locationid)
       .exec(
-        function(err, location) {
+        function (err, location) {
           if (err) {
             console.log(err);
             sendJSONresponse(res, 404, err);
@@ -222,7 +222,7 @@ module.exports.locationsDeleteOne = function(req, res) {
           console.log("Location id " + locationid + " deleted");
           sendJSONresponse(res, 204, null);
         }
-    );
+      );
   } else {
     sendJSONresponse(res, 404, {
       "message": "No locationid"
