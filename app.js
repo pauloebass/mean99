@@ -1,5 +1,6 @@
 require('dotenv').config(); //necessario para express-jwt e variareis de ambiente process.env.xxx
 var express = require('express');
+const helmet = require("helmet");
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');//logger
@@ -46,6 +47,7 @@ fs.writeFile('public/javascripts/loc8r.min.js', uglified.code, function (err){
   }
 });
 
+app.use(helmet());
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));//Concise output colored by response status for development use
 app.use(bodyParser.json());
