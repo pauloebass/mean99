@@ -47,7 +47,19 @@ fs.writeFile('public/javascripts/loc8r.min.js', uglified.code, function (err){
   }
 });
 
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy(
+    {
+      directives:{
+        defaultSrc: ["https:"],
+        scriptSrc: ["https:"],
+        imgSrc: ["https:"],
+        styleSrc: ["'unsafe-hashes'", "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='", "https:"]
+      }
+    }
+  )
+);
+
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));//Concise output colored by response status for development use
 app.use(bodyParser.json());
